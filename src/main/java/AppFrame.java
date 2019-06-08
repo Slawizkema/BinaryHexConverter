@@ -1,7 +1,5 @@
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.*;
 
 // GUI class
 public class AppFrame extends JFrame {
