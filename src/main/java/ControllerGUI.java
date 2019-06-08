@@ -7,19 +7,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Created by slawi_000 on 15.03.2019.
  */
 public class ControllerGUI {
-    final static int BINARY_FILE = 1;
-    final static int HEX_FILE = 2;
     private AppFrame appFrame;
     private static final Logger log = Logger.getLogger(ControllerGUI.class);
 
     private ModelConverter model;
+
+
 
     public ControllerGUI() {
         appFrame = new AppFrame();
@@ -28,7 +25,7 @@ public class ControllerGUI {
 
         appFrame.browseBinaryFileButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String fileDir = chooseFileFromFS(BINARY_FILE);
+                String fileDir = selectFileFromFS(DialogueType.OPEN_BINARY);
                 appFrame.binaryFileDir.setText(fileDir);
                 appFrame.hexFileDir.setText("");
                 appFrame.saveHexButton.setEnabled(true);
@@ -39,7 +36,7 @@ public class ControllerGUI {
         appFrame.browseHexFileButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    appFrame.hexFileDir.setText(chooseFileFromFS(HEX_FILE));
+                    appFrame.hexFileDir.setText(selectFileFromFS(DialogueType.OPEN_HEX));
                     appFrame.binaryFileDir.setText("");
                     // check correct file extension
                 } catch (IllegalArgumentException ill) {
@@ -54,13 +51,13 @@ public class ControllerGUI {
 
         appFrame.saveHexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                saveFileInDirectory(HEX_FILE);
+                saveFileInFS(DialogueType.SAVE_HEX);
             }
         });
 
         appFrame.saveBinaryButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                saveFileInDirectory(BINARY_FILE);
+                saveFileInFS(DialogueType.SAVE_BINARY);
             }
         });
 
@@ -83,45 +80,87 @@ public class ControllerGUI {
 
     }
 
-    //Choose files from user's file system
-    public String chooseFileFromFS ( int fileType){
-        JFileChooser fileChooser = new JFileChooser();
+    /*
+    Choose files from user's file system
+    input - fileType
+     */
 
-        //if choose .dump files - enable extension filter, if binary file - w/o filter
-        if (fileType == 2) {
-            fileChooser.setFileFilter(new FileNameExtensionFilter("Dump files", "dump"));
+
+    private String selectFileFromFS(DialogueType dt){
+       File selectedFile = getFileFromFS(dt);
+       String extension = selectedFile.getName().substring(selectedFile.getName().lastIndexOf("."));
+
+       //check that the correct extension is selected for the dump file
+        if (dt == DialogueType.OPEN_HEX && !extension.equals(".dump")) {
+            JOptionPane.showMessageDialog(appFrame, String.format("Файл %s не является .dump файлом. Попробуйте еще раз", selectedFile.getAbsolutePath()));
+            selectFileFromFS(dt);
         }
-        fileChooser.setDialogTitle("Выбор файла");
-
-        // Mode - File + Directory
-        fileChooser.setFileSelectionMode(JFileChooser.OPEN_DIALOG);
-        int result = fileChooser.showOpenDialog(appFrame);
-        model.loadFile(fileChooser.getSelectedFile(), fileType);
+        model.loadFile(selectedFile, dt);
 
         // print text info of files
         appFrame.hexDumpText.setText(model.printHexText());
         appFrame.hashText.setText(model.printHash());
-
-        return fileChooser.getSelectedFile().getAbsolutePath();
+        log.info(String.format("Файл %s открыт", selectedFile.getAbsolutePath()));
+        return selectedFile.getAbsolutePath();
 
     }
-    //Save files in user's file system
-    public void saveFileInDirectory ( int fileType){
+    //Save converted file in user's file system
+    private void saveFileInFS (DialogueType dt){
+        File selectedFile = getFileFromFS(dt);
+        model.saveFile(selectedFile);
+        JOptionPane.showMessageDialog(appFrame, String.format("Файл %s сохранен", selectedFile.getAbsolutePath()));
+        log.info(String.format("Файл %s сохранен", selectedFile.getAbsolutePath()));
+
+    }
+
+
+    private File getFileFromFS (DialogueType dialogueType) throws IllegalStateException {
+        File resFile = new File("src/test/resources/log.log");
+
+        //if file is hex - set filter
         JFileChooser fileChooser = new JFileChooser();
-        if (fileType == 2) {
+        if (dialogueType == DialogueType.OPEN_HEX || dialogueType == DialogueType.SAVE_HEX) {
             fileChooser.setFileFilter(new FileNameExtensionFilter("Dump files", "dump"));
         }
-        fileChooser.setDialogTitle("Сохранение файла");
+
+        //set title
+        switch (dialogueType) {
+            case OPEN_HEX:
+                fileChooser.setDialogTitle("Выбор файла дампа");
+                break;
+            case OPEN_BINARY:
+                fileChooser.setDialogTitle("Выбор бинарного файла");
+                break;
+            case SAVE_BINARY:
+                fileChooser.setDialogTitle("Сохранение бинарного файла");
+                break;
+            case SAVE_HEX:
+                fileChooser.setDialogTitle("Сохранение файла дампа");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + dialogueType);
+        }
+
         // Mode - File
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 
-            model.saveFile(fileChooser.getSelectedFile());
+        //if open file - set showOpenDialog, else - save
+        if (dialogueType == DialogueType.OPEN_HEX || dialogueType == DialogueType.OPEN_BINARY) {
 
-            JOptionPane.showMessageDialog(appFrame,
-                    "Файл '" + fileChooser.getSelectedFile() +
-                            " сохранен");
+            if (fileChooser.showOpenDialog(appFrame) == JFileChooser.APPROVE_OPTION) {
+                resFile =  fileChooser.getSelectedFile();
+            }
+
+        } else {
+
+            if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                resFile =  fileChooser.getSelectedFile();
+            }
         }
+
+        return resFile;
     }
+
+
 
 }

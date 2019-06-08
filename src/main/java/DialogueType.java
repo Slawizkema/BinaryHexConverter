@@ -1,0 +1,1 @@
+public enum DialogueType {OPEN_BINARY, OPEN_HEX, SAVE_BINARY, SAVE_HEX}

@@ -1,4 +1,6 @@
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,9 +16,9 @@ public class ModelConverter {
     //create hex text with Ascii
     public String printHexText (){
 
-        byte bytes[] = inputFile.getByteArray();
+        byte[] bytes = inputFile.getByteArray();
 
-        String stringHexArray[] = new String[bytes.length];
+        String[] stringHexArray = new String[bytes.length];
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < bytes.length; i++) {
@@ -63,12 +65,12 @@ public class ModelConverter {
         return inputFile.getHash();
     }
 
-    public void loadFile (File file, int type){
-        switch (type) {
-            case 1:
+    public void loadFile (File file, @NotNull DialogueType dt){
+        switch (dt) {
+            case OPEN_BINARY:
                 inputFile = new BinaryFile(file);
                 break;
-            case 2:
+            case OPEN_HEX:
                 inputFile = new HexDumpFile(file);
                 break;
         }
