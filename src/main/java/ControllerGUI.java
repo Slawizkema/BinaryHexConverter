@@ -114,7 +114,7 @@ public class ControllerGUI {
         // print text info of files
         appFrame.hexDumpText.setText(model.printHexText());
         appFrame.hashText.setText(model.printHash());
-        log.info(String.format("Файл %s открыт", selectedFile.getAbsolutePath()));
+        log.info(String.format("File %s has opened", selectedFile.getAbsolutePath()));
         result = selectedFile.getAbsolutePath();
 
         return result;
@@ -125,7 +125,7 @@ public class ControllerGUI {
         File selectedFile = getFileFromFS(dt);
         model.saveFile(selectedFile);
         JOptionPane.showMessageDialog(appFrame, String.format("Файл %s сохранен", selectedFile.getAbsolutePath()));
-        log.info(String.format("Файл %s сохранен", selectedFile.getAbsolutePath()));
+        log.info(String.format("File %s has saved", selectedFile.getAbsolutePath()));
 
     }
 
@@ -154,7 +154,9 @@ public class ControllerGUI {
                 fileChooser.setDialogTitle("Сохранение файла дампа");
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + dialogueType);
+                IllegalStateException illExp = new IllegalStateException("Unexpected value: " + dialogueType);
+                log.error(illExp);
+                throw illExp;
         }
 
         // Mode - File
