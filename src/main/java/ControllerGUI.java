@@ -94,7 +94,6 @@ public class ControllerGUI {
 
     /*
     Choose files from user's file system
-    input - fileType
      */
 
 
