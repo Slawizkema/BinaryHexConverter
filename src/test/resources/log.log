@@ -1,0 +1,19 @@
+EBUG BinaryFile:22 - file create C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:22 - file create C:\Users\slawi\Documents\primer_dump.txt
+DEBUG BinaryFile:22 - file opened C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:68 - file {} convert to {} 
+DEBUG BinaryFile:22 - file opened C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:68 - file C:\Users\slawi\Documents\primer.txt
+ convert to C:\Users\slawi\Documents\primer.dump
+ 
+DEBUG BinaryFile:22 - Binary file opened C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:68 - Binary file C:\Users\slawi\Documents\primer.txt
+ convert to C:\Users\slawi\Documents\primer.dump
+
+DEBUG HexDumpFile:20 - HexDumpFile file open C:\Users\slawi\Documents\primer.dump
+DEBUG BinaryFile:22 - Binary file opened C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:22 - Binary file opened C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:22 - Binary file opened C:\Users\slawi\Documents\primer.txt
+DEBUG BinaryFile:22 - Binary file opened C:\Users\slawi\Documents\primer.txt
+DEBUG HexDumpFile:20 - HexDumpFile file open C:\Users\slawi\Documents\primer.dump
+DEBUG BinaryFile:22 - Binary file opened C:\Users\slawi\Documents\primer.txt
