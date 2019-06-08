@@ -25,27 +25,38 @@ public class ControllerGUI {
 
         appFrame.browseBinaryFileButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String fileDir = selectFileFromFS(DialogueType.OPEN_BINARY);
-                appFrame.binaryFileDir.setText(fileDir);
-                appFrame.hexFileDir.setText("");
-                appFrame.saveHexButton.setEnabled(true);
+                //file must be selected
+                try {
+                    String fileDir = selectFileFromFS(DialogueType.OPEN_BINARY);
+                    appFrame.binaryFileDir.setText(fileDir);
+                    appFrame.hexFileDir.setText("");
 
+
+                    if (model.getInputFile().getClass().getName().equals("BinaryFile")) {
+                        appFrame.saveHexButton.setEnabled(true);
+                    }
+                }
+                catch (NullPointerException npe)
+                {
+                    log.error("Selected file is not exist");
+                    JOptionPane.showMessageDialog(appFrame, "Selected file is not exist, try again");
+                }
             }
         });
 
         appFrame.browseHexFileButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // check correct file
                 try {
                     appFrame.hexFileDir.setText(selectFileFromFS(DialogueType.OPEN_HEX));
                     appFrame.binaryFileDir.setText("");
-                    // check correct file extension
-                } catch (IllegalArgumentException ill) {
-                    log.error("Wrong file", ill);
-                    JOptionPane.showMessageDialog(appFrame, "File is incorrect, try again");
+                    appFrame.saveHexButton.setEnabled(false);
+                    appFrame.saveBinaryButton.setEnabled(true);
+                } catch (IllegalArgumentException | NullPointerException ex) {
+                    log.error("Wrong file");
+                    JOptionPane.showMessageDialog(appFrame, "File is incorrect or not exist, try again");
 
                 }
-                appFrame.saveHexButton.setEnabled(false);
-                appFrame.saveBinaryButton.setEnabled(true);
             }
         });
 
@@ -69,6 +80,7 @@ public class ControllerGUI {
                 appFrame.hashText.setText("");
                 appFrame.saveHexButton.setEnabled(false);
                 appFrame.saveBinaryButton.setEnabled(false);
+                log.info("Reset");
             }
         });
 
@@ -86,14 +98,16 @@ public class ControllerGUI {
      */
 
 
-    private String selectFileFromFS(DialogueType dt){
-       File selectedFile = getFileFromFS(dt);
+    private String selectFileFromFS(DialogueType dt) throws NullPointerException{
+        String result = " ";
+        File selectedFile = getFileFromFS(dt);
+
        String extension = selectedFile.getName().substring(selectedFile.getName().lastIndexOf("."));
 
        //check that the correct extension is selected for the dump file
         if (dt == DialogueType.OPEN_HEX && !extension.equals(".dump")) {
             JOptionPane.showMessageDialog(appFrame, String.format("Файл %s не является .dump файлом. Попробуйте еще раз", selectedFile.getAbsolutePath()));
-            selectFileFromFS(dt);
+            return result;
         }
         model.loadFile(selectedFile, dt);
 
@@ -101,7 +115,9 @@ public class ControllerGUI {
         appFrame.hexDumpText.setText(model.printHexText());
         appFrame.hashText.setText(model.printHash());
         log.info(String.format("Файл %s открыт", selectedFile.getAbsolutePath()));
-        return selectedFile.getAbsolutePath();
+        result = selectedFile.getAbsolutePath();
+
+        return result;
 
     }
     //Save converted file in user's file system
@@ -115,7 +131,7 @@ public class ControllerGUI {
 
 
     private File getFileFromFS (DialogueType dialogueType) throws IllegalStateException {
-        File resFile = new File("src/test/resources/log.log");
+        File resFile = null;
 
         //if file is hex - set filter
         JFileChooser fileChooser = new JFileChooser();
@@ -144,18 +160,20 @@ public class ControllerGUI {
         // Mode - File
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
+
         //if open file - set showOpenDialog, else - save
         if (dialogueType == DialogueType.OPEN_HEX || dialogueType == DialogueType.OPEN_BINARY) {
 
             if (fileChooser.showOpenDialog(appFrame) == JFileChooser.APPROVE_OPTION) {
-                resFile =  fileChooser.getSelectedFile();
+                resFile = fileChooser.getSelectedFile();
             }
 
         } else {
 
             if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-                resFile =  fileChooser.getSelectedFile();
+                resFile = fileChooser.getSelectedFile();
             }
+
         }
 
         return resFile;

@@ -11,7 +11,9 @@ import java.util.regex.Pattern;
 public class ModelConverter {
     private InputFile inputFile;
 
-
+    public InputFile getInputFile() {
+        return inputFile;
+    }
 
     //create hex text with Ascii
     public String printHexText (){
