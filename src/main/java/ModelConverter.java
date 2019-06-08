@@ -23,6 +23,7 @@ public class ModelConverter {
             stringHexArray[i] = String.format("%02X", bytes[i]);
         }
 
+        //add cols No
         sb.append(String.format("%010X | ", 0));
 
         StringBuilder sbHex = new StringBuilder();
